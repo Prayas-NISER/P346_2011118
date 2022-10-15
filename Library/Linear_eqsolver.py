@@ -89,7 +89,7 @@ def Gauss_Jordan(Ab,str=None):
     if str == None:
         return Ab
     elif str == "solve":
-        print("The solutions for the given system of equations are:")
+        print("The solutions for the given system of equations respectively are:")
         print()
         for i in range(c-1):
             print(Ab[i][c-1])
@@ -335,10 +335,36 @@ def Cholesky_eqsolver(Ab):
     else:
         return("No unique solution exists/Cholesky Decomposition failed")
 
+# Finding the maximum value of a row
+def max_Row(A,n):
+    max = 0
+    R = len(A[0])
+    for i in range(R):
+        if abs(A[n][i]) > max:
+            max = A[n][i]
+    return max
+
+# Function for making the matrix diagonally dominant
+def diagonal_dominant(A):
+    r = len(A)
+    for i in range(r):
+      max = max_Row(A,i)
+      if abs(A[i][i]) != max:
+        for j in range(r):
+          if abs(A[i][j]) == max:
+            A = rowswap(A,i,j)
+    return A 
+
 # Solving a system of linear equations with Jacobi iterative method
-def Jacobi_eqsolver(A, B, X, e):
-  max_iter = 100
+def Jacobi_eqsolver(A, B, e):
+  A = diagonal_dominant(A)
+  max_iter = 1000
   count = 0
+  
+  X = []
+  X_final = []
+  for i in range(len(A)):
+    X.append(0)
 
   def jacobi(A,B,X):
     sol = []
@@ -347,7 +373,7 @@ def Jacobi_eqsolver(A, B, X, e):
       for j in range(len(A)):
         if i != j:
           sum += A[i][j]*X[j]
-      sol.append(float((B[i] - sum)/A[i][i]))
+      sol.append(float((B[0][i] - sum)/A[i][i]))
     return sol
 
   while(True):
@@ -357,24 +383,26 @@ def Jacobi_eqsolver(A, B, X, e):
       break
     X_new = X.copy()
     X = jacobi(A,B,X)
-    s = 0
+    total = 0
     for i in range(len(X)):
-      s += abs(X_new[i] - X[i])
-    if s < e:
+      total += abs(X_new[i] - X[i])
+    if total < e:
       print("Entered precision level reached with no. of iterations:", count)
-      print("The solutions for the given system are:")
+      for i in range(len(X)):
+        X_final.append(round(X[i],2))
       break
-  return X
+  return X_final
 
 # Solving a system of linear equations with Gauss-Seidel iterative method
 def Gauss_Seidel_eqsolver(A, B, e):
+  A = diagonal_dominant(A)
   X = []
   X_final = []
   for i in range(len(A)):
     X.append(0)
   sum_k1 = 0
   sum_k2 = 0
-  max_iter = 100
+  max_iter = 1000
   count = 0
 
   while(True):
@@ -395,7 +423,6 @@ def Gauss_Seidel_eqsolver(A, B, e):
     total = 0
     for i in range(len(A)):
       total += abs(X_new[i] - X[i])
-
     if total < e:
       print("Entered precision level reached with no. of iterations:", count)
       for i in range(len(X)):
