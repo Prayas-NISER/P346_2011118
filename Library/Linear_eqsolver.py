@@ -357,8 +357,7 @@ def diagonal_dominant(A):
 
 # Solving a system of linear equations with Jacobi iterative method
 def Jacobi_eqsolver(A, B, e):
-  A = diagonal_dominant(A)
-  max_iter = 1000
+  max_iter = 100
   count = 0
   
   X = []
@@ -395,14 +394,12 @@ def Jacobi_eqsolver(A, B, e):
 
 # Solving a system of linear equations with Gauss-Seidel iterative method
 def Gauss_Seidel_eqsolver(A, B, e):
-  A = diagonal_dominant(A)
   X = []
-  X_final = []
   for i in range(len(A)):
     X.append(0)
   sum_k1 = 0
   sum_k2 = 0
-  max_iter = 1000
+  max_iter = 100
   count = 0
 
   while(True):
@@ -425,7 +422,7 @@ def Gauss_Seidel_eqsolver(A, B, e):
       total += abs(X_new[i] - X[i])
     if total < e:
       print("Entered precision level reached with no. of iterations:", count)
-      for i in range(len(X)):
-        X_final.append(round(X[i],2))
       break
-  return X_final
+  print("The solutions are given respectively as:")
+  for i in range(len(X)):
+      print(X[i])

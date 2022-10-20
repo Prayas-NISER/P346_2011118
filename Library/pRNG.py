@@ -1,5 +1,4 @@
 # Defining a LCG random generator to generate numbers b/w [0,1]
-
 def LCG(r0: float, n: int):
   a = 1103515245
   c = 12345
@@ -11,8 +10,20 @@ def LCG(r0: float, n: int):
     l.append(r0)
   return l
 
-# Defining a LCG random generator to generate numbers b/w [-k,k]
+# Defining a LCG random generator to generate numbers b/w [0,k]
+def Random_to(r0: float, n: int, k: int):
+  a = 1103515245
+  c = 12345
+  m = 32768
+  l = []
 
+  for i in range (0, n):
+    r0 = float(((a*r0 + c) % m)/m)
+    p0 = k*r0
+    l.append(p0)
+  return l
+
+# Defining a LCG random generator to generate numbers b/w [-k,k]
 def Random_bw(r0: float, n: int, k: int):
   a = 1103515245
   c = 12345
