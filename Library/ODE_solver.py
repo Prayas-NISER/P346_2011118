@@ -1,19 +1,25 @@
-# Function for solving ODE by Runge-Kutta method
-def Runge_Kutta(fn,step_size,x_0,y_0,x_n):  
-        X=[x_0]
-        Y=[y_0]
-        N=int(abs(x_0-x_n)/step_size)
-        for i in range(N):
-            x=X[-1]+step_size/2
-            x2=X[-1]+step_size
-            k1 = step_size*fn(X[-1],Y[-1])
-            k2 = step_size*fn(x,Y[-1]+k1/2)
-            k3 = step_size*fn(x,Y[-1]+k2/2)
-            k4 = step_size*fn(x2,Y[-1]+k3)
-            y=Y[-1]+(k1+2*k2+2*k3+k4)*(step_size)/6
-            X.append(x)
-            Y.append(y)
-        return X,Y 
+# Function for solving ODE using RK4 method
+def RK4(d2ydx2, dydx, x0, y0, z0, xf, h):
+    x = [x0]
+    y = [y0]
+    # dy/dx = z 
+    df = [z0] 
+    n = int((xf-x0)/h)     
+    for i in range(n):
+        x.append(x[i] + h)
+        k1 = h * dydx(x[i], y[i], df[i])
+        l1 = h * d2ydx2(x[i], y[i], df[i])
+        k2 = h * dydx(x[i] + h/2, y[i] + k1/2, df[i] + l1/2)
+        l2 = h * d2ydx2(x[i] + h/2, y[i] + k1/2, df[i] + l1/2)
+        k3 = h * dydx(x[i] + h/2, y[i] + k2/2, df[i] + l2/2)
+        l3 = h * d2ydx2(x[i] + h/2, y[i] + k2/2, df[i] + l2/2)
+        k4 = h * dydx(x[i] + h, y[i] + k3, df[i] + l3)
+        l4 = h * d2ydx2(x[i] + h, y[i] + k3, df[i] + l3)
+
+        y.append(y[i] + (k1 + 2*k2 + 2*k3 + k4)/6)
+        df.append(df[i] + (l1 + 2*l2 + 2*l3 + l4)/6)
+
+    return x, y
 
 
 def Forward_Euler(dydx, y0, x0, xf, step_size):
@@ -31,8 +37,8 @@ def Forward_Euler(dydx, y0, x0, xf, step_size):
 
     return x, y
 
-# Function for solving differential equation using RK4 method
-def RK4(d2ydx2, dydx, x0, y0, z0, xf, step_size):
+# Function for solving differential equation using Runge-Kutta method
+def Runge_Kutta(d2ydx2, dydx, x0, y0, z0, xf, step_size):
     """ Yields solution from x=x0 to x=xf
     y(x0) = y0 & y'(x0) = z0
     z = dy/dx
