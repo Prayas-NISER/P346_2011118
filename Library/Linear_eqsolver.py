@@ -167,36 +167,90 @@ def det_Mat(A):
         print("Entered matrix is not a square matrix")
         return None
 
-# LU decomposition using Doolittle method
-def LU_decomp(A):
-    r = len(A)
-    c = len(A[0])
-    for i in range(r):
-        #Checking if LU decomposition is possible
-        sub = leading_Submatrix(A,i+1)
-        if det_Mat(sub) == "Indeterminate value found/Partial pivoting failed." or det_Mat(sub) == 0:
-            p,s = partial_pivot(A,i)
-            if p == None:
-                return("LU Decomposition is not possible")
-                break
+# Function for forward and backward substitution
+def forward_backward_subs(mat_L, mat_U, vec_B):
 
-    #Calculating the values of the elements in L and U
-    for i in range(1,r):
-        for j in range(c):
-            if i <= j:
-                temp = 0
-                for k in range(i):
-                    temp += A[i][k]*A[k][j]
-                A[i][j] = A[i][j] - temp
-            elif i > j:
-                temp = 0
-                for k in range(j):
-                    temp += A[i][k]*A[k][j]
-                A[i][j] = (A[i][j] - temp)/A[j][j]
-    A = round_Mat(A,2)
-    return A
+    x = [0] * len(mat_U[0])
+    y = [0] * len(mat_L[0])
+    
+    # Forward substitution
+    for i in range(len(mat_L)):
+        sum = 0
+        for j in range(i):
+            sum += mat_L[i][j]*y[j]
+        y[i] = vec_B[i] - sum
 
-# Checking for symmetric matrix
+    # Backward substitution
+    for i in reversed(range(len(mat_U))):
+        sum = 0
+        for j in reversed(range(i, len(mat_U[0]))):
+            sum += mat_U[i][j]*x[j]
+        x[i] = (y[i] - sum)/mat_U[i][i]
+    return x
+
+# LU decomposition using Doolittle condition
+def LU_decomp(mat_A):
+
+    n = len(mat_A)
+    L = [[0 for x in range(n)] for y in range(n)] 
+    U = [[0 for x in range(n)] for y in range(n)]
+
+    for i in range(len(mat_A)):
+        # Doolittle condition
+        L[i][i] = 1
+
+        #Upper triangular matrix
+        for k in range(i, len(mat_A[0])):
+            sum = 0
+            for j in range(i): 
+                sum += (L[i][j] * U[j][k])
+            U[i][k] = mat_A[i][k] - sum
+
+        #Lower triangular matrix
+        for k in range(i+1, len(mat_A[0])):             
+            sum = 0 
+            for j in range(i): 
+                sum += (L[k][j] * U[j][i])           
+            L[k][i] = (mat_A[k][i] - sum)/U[i][i] 
+    return L,U
+
+# Function for checking if inverse of a matrix exists
+def Check_inv(mat_U):
+    det = 1
+    for i in range(len(mat_U)):
+        det = det*mat_U[i][i]
+
+    if det == 0:
+        print("Inverse of the matrix does not exist")
+        raise Warning("Inverse of the matrix does not exist")
+        return False
+    else:
+        print("Inverse of the matrix exists")
+        return True
+
+# Finding inverse of a matrix using LU decomposition (if it exists)
+def LU_inverse(mat_A):
+
+    n = len(mat_A)
+    inv_mat = [[0 for x in range(n)] for y in range(n)] 
+
+    L,U = LU_decomp(mat_A)
+
+    #Checking if the inverse exists
+    if Check_inv(U) == True:
+        for i in range(n):
+
+            B = [0 for x in range(n)]
+            B[i] = 1
+            column = forward_backward_subs(L, U, B)
+
+            for j in range(n):
+                inv_mat[j][i] = round(column[j], 3)
+        return inv_mat
+    else:
+        return None
+
+# Function for checking symmetric matrix
 def check_sym(A):
   r = len(A)
   c = len(A[0])
