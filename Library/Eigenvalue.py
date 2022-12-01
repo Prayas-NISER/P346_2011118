@@ -44,7 +44,7 @@ def Dominant_eigenvalue(A,x0,eps):
         z = matrix_product(A,y)
         k1 = dot_product(z,x0)/dot_product(y,x0)
     
-    sum=0 
+    sum = 0 
     for i in range(len(y)):
         sum += y[i][0]**2
     sum = sum**0.5
