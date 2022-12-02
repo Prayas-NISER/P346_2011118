@@ -1,5 +1,7 @@
-# Function for reading data from the csv file
+from math import *
 import numpy as np
+
+# Function for reading data from the csv file
 def Read_data(file):
     C = np.genfromtxt(file,delimiter=',')
     X = []
@@ -8,6 +10,123 @@ def Read_data(file):
         X.append(C[i][0])
         Y.append(C[i][1])
     return X,Y
+
+def Find_stats(x, y):
+    n = len(x)
+    Sx = sum(x)
+    Sy = sum(y)
+    x_mean = sum(x)/n
+    y_mean = sum(y)/n
+
+    Sxx = 0
+    Sxy = 0
+    Syy = 0
+    for i in range(n):
+        Sxx += x[i]**2
+        Sxy += x[i]*y[i]
+        Syy += y[i]**2
+    
+    return n, x_mean, y_mean, Sx, Sy, Sxx, Syy, Sxy
+
+def Pearsons_r(xs, ys):
+    mean_x = sum(xs)/len(xs)
+    mean_y = sum(ys)/len(ys)
+
+    r = sqrt(sum((xs[i] - mean_x)*(ys[i] - mean_y) for i in range(
+        len(xs)))**2/(sum((xs[i] - mean_x)**2 for i in range(len(
+        xs)))*sum((ys[i] - mean_y)**2 for i in range(len(ys)))))
+    return r
+
+def Std_dev(x):
+    var = 0
+    mean = Mean(x)
+    for i in range(len(x)):
+        var += (x[i]-mean)**2
+    var = var/len(x)
+    std = sqrt(var)
+    return std
+
+# Function for linear fitting
+def Linear_fit(xs, ys):
+    S = Find_stats(xs,ys)
+    m = (S[7]*S[0] - S[3]*S[4])/(S[0]*S[5] - S[3]**2)
+    c = (S[5]*S[4] - S[3]*S[7])/(S[0]*S[5] - S[3]**2)
+    return m, c
+    
+# Function for plotting linear fit
+def Plot_linear_fit(x,y):
+    import matplotlib.pyplot as plt
+    
+    m, c = Linear_fit(x,y)
+    y_fit = []
+    for k in range(len(x)):
+        y_fit.append(m*x[k]+c)
+
+    plt.figure(figsize=(8,6))
+    plt.plot(X, y_fit, 'r-', label='Fit line')
+    plt.scatter(x, y, label='Data points')
+    plt.title("Graph for straight line fitting")
+    plt.legend()
+    plt.grid()
+    plt.show()
+
+# Function for exponential fitting
+def Exponential_fit(xs, ys):
+    # y = a * e**(-b*x)
+    y = []
+    for i in range(len(xs)):
+        y.append(log(ys[i]))
+    m, c = Linear_fit(xs, y)
+    b = m
+    a = e**c
+    return b, a
+
+# Function for plotting exponential fit
+def Plot_exp_fit(x,y):
+    import matplotlib.pyplot as plt
+    
+    b, a = Exponential_fit(x,y)
+    y_exp = []
+    for k in range(len(x)):
+        y_exp.append(a*e**(b*x[k]))
+
+    plt.figure(figsize=(8,6))
+    plt.plot(x, y_exp, 'r-', label='Fit line')
+    plt.scatter(x, y, label='Data points')
+    plt.title("Graph for exponential fitting")
+    plt.legend()
+    plt.grid()
+    plt.show()
+
+# Function for power law fitting
+def Power_fit(xs, ys):
+    # y = a * (x**b)
+    x = []
+    y = []
+    for i in range(len(xs)):
+        x.append(log(xs[i]))
+        y.append(log(ys[i]))
+    m, c = Linear_fit(x, y)
+    b = m
+    a = e**c
+    return b, a
+
+# Function for plotting power law fit
+def Plot_power_fit(x,y):
+    import matplotlib.pyplot as plt
+    
+    b, a = Power_fit(x,y)
+    y_pow = []
+    for k in range(len(x)):
+        y_pow.append(a*(x[k]**b))
+
+    plt.figure(figsize=(8,6))
+    plt.plot(x, y_pow, 'r-', label='Fit line')
+    plt.scatter(x, y, label='Data points')
+    plt.title("Graph for power law fitting")
+    plt.legend()
+    plt.grid()
+    plt.show()
 
 # Function for polynomial fitting
 import copy
@@ -118,43 +237,3 @@ def Polyfit_graph(X, Y, sol, order):
     plt.legend()
     plt.grid()
     plt.show()
-    
-def Find_stats(X, Y):
-    n = len(X)
-    Sx = sum(X)
-    Sy = sum(Y)
-
-    x_mean = sum(X)/n
-    y_mean = sum(Y)/n
-
-    Sxx = 0
-    Sxy = 0
-    Syy = 0
-    for i in range(n):
-        Sxx = Sxx + x[i]**2
-        Sxy = Sxy + x[i]*y[i]
-        Syy = Syy + y[i]**2
-    
-    return n, x_mean, y_mean, Sx, Sy, Sxx, Syy, Sxy
-
-def Pearsons_r(xs, ys):
-    mean_x = sum(xs)/len(xs)
-    mean_y = sum(ys)/len(ys)
-
-    r = sqrt(sum((xs[i] - mean_x)*(ys[i] - mean_y) for i in range(len(xs)))**2 / (sum(
-        (xs[i] - mean_x)**2 for i in range(len(xs)))*sum((ys[i] - mean_y)**2 for i in range(len(ys)))))
-    return r
-
-def Pearsons_coeff(X,Y):
-    S = Find_stats(X,Y)
-    r = S[7]/sqrt(S[5]*S[6])
-    return r
-
-def Std_dev(X):
-    var = 0
-    mean = Mean(X)
-    for i in range(len(X)):
-        var+=(X[i]-mean)**2
-    var=var/len(X)
-    std = sqrt(var)
-    return std
