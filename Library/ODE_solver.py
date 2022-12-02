@@ -1,5 +1,5 @@
-# Function for solving ODE using RK4 method
-def RK4(d2ydx2, dydx, x0, y0, z0, xf, h):
+# Function for solving 2nd order ODE using RK4 method
+def RK4_order2(d2ydx2, dydx, x0, y0, z0, xf, h):
     x = [x0]
     y = [y0]
     # dy/dx = z 
@@ -18,8 +18,24 @@ def RK4(d2ydx2, dydx, x0, y0, z0, xf, h):
 
         y.append(y[i] + (k1 + 2*k2 + 2*k3 + k4)/6)
         df.append(df[i] + (l1 + 2*l2 + 2*l3 + l4)/6)
-
     return x, y
+
+# Function for solving 1st order ODE using RK4 method
+def RK4_order1(dydx,x0,y0,xn,step_size):  
+        X = [x0]
+        Y = [y0]
+        N = int(abs(x0-xn)/step_size)
+        for i in range(N):
+            x = X[-1]+step_size/2
+            x2 = X[-1]+step_size
+            k1 = step_size*dydx(X[-1],Y[-1])
+            k2 = step_size*dydx(x,Y[-1]+k1/2)
+            k3 = step_size*dydx(x,Y[-1]+k2/2)
+            k4 = step_size*dydx(x2,Y[-1]+k3)
+            y=Y[-1]+(k1+2*k2+2*k3+k4)*(step_size)/6
+            X.append(x)
+            Y.append(y)
+        return X,Y
 
 
 def Forward_Euler(dydx, y0, x0, xf, step_size):
